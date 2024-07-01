@@ -1,0 +1,107 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Set up the WebDriver (e.g., Chrome)
+driver = webdriver.Chrome()  # Update the path as needed
+
+# Base URL for constructing full links
+base_url = 'https://www.theinformation.com'
+
+def get_article_links(section_xpath):
+    unique_links = set()
+    # Locate the div tags with the specified XPath
+    article_divs = driver.find_elements(By.XPATH, section_xpath)
+    for div in article_divs:
+        # Find all anchor tags within the div and get the href attribute
+        a_tags = div.find_elements(By.TAG_NAME, 'a')
+        for a in a_tags:
+            href = a.get_attribute('href')
+            if href and 'www.theinformation.com/articles/' in href:
+                unique_links.add(href)
+    return list(unique_links)
+
+try:
+    # Open the login page
+    driver.get('https://www.theinformation.com/sessions/new')
+
+    # Wait until the email input field is present
+    email_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "login-email"))
+    )
+
+    # Enter the email address
+    email_field.send_keys('devs@inside.com')
+
+    # Wait for a few seconds
+    time.sleep(3)
+
+    # Find the submit button and click it
+    submit_button = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"][value="Continue with email"]')
+    submit_button.click()
+
+    # Wait until the password input field is present
+    password_field = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "password"))
+    )
+
+    # Enter the password
+    password_field.send_keys('mzf7dzd*FDM.ujx7jrt')
+
+    # Wait for a few seconds
+    time.sleep(2)
+
+    # Find the sign in button and click it
+    sign_in_button = driver.find_element(By.CSS_SELECTOR, 'input[type="submit"][value="Sign In"]')
+    sign_in_button.click()
+
+    # Wait for a few seconds to ensure the login completes
+    time.sleep(5)
+
+    # Find and click the "Read more" link
+    read_more_link = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//a[@data-testid="read-more-button"]'))
+    )
+    read_more_link.click()
+
+    # Wait for the articles to load
+    time.sleep(5)
+
+    # Get article links from the first section
+    article_links_1 = get_article_links('//div[contains(@class, "mx-0 flex flex-col flex-nowrap gap-32 gap-x-0 border-0 border-b border-solid border-grayscale-gray pb-48 sm:flex-row sm:gap-28 lg:gap-56")]')
+
+    # Print the first set of article links
+    print("Article links from the first section:")
+    for link in article_links_1:
+        print(link)
+
+    # Separation between links
+    print("\n" + "="*50 + "\n")
+
+    # Get article links from the second section
+    article_links_2 = get_article_links('//div[contains(@class, "ml-0 mt-16 sm:ml-24 sm:mt-0")]')
+
+    # Print the second set of article links
+    print("Article links from the second section:")
+    for link in article_links_2:
+        print(link)
+
+    # Separation between links
+    print("\n" + "="*50 + "\n")
+
+    # Get article links from the third section
+    article_links_3 = get_article_links('//div[contains(@class, "border-0 border-b border-solid border-grayscale-gray px-16 py-32 sm:px-0 sm:py-48")]')
+
+    # Print the third set of article links
+    print("Article links from the third section:")
+    for link in article_links_3:
+        print(link)
+
+    # Separation between links
+    print("\n" + "="*50 + "\n")
+
+finally:
+    # Close the browser
+    driver.quit()
