@@ -77,7 +77,7 @@ def fortune_article_details(url):
             soup = BeautifulSoup(response.content, 'lxml')
 
             # Extract the title
-            title_tag = soup.find('h1')
+            title_tag = soup.find('h1') 
             if title_tag:
                 title = title_tag.text.strip()
             else:
