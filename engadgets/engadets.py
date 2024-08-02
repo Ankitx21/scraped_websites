@@ -4,34 +4,29 @@ from bs4 import BeautifulSoup
 import json
 import re
 
-residential_proxies = {
+
+def convert_date_format(date_str):
+    date_obj = datetime.strptime(date_str, "%b %d %Y")
+    formatted_date = date_obj.strftime("%Y-%m-%d")
+    return formatted_date
+
+
+def engadgets_article_list():
+
+    residential_proxies = {
     'http': 'http://brd-customer-hl_5f7bc336-zone-residential_proxy2:j61wavrugcvs@brd.superproxy.io:22225',
     'https': 'http://brd-customer-hl_5f7bc336-zone-residential_proxy2:j61wavrugcvs@brd.superproxy.io:22225'
 }
-ca_cert_path = 'ca.crt'
+    ca_cert_path = 'ca.crt'   
 
+    url = "https://www.engadget.com/"
 
-cookies = {
-    'A1': 'd=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI',
-    'A3': 'd=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI',
-    'A1S': 'd=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI',
-    'cmp': 't=1722344972&j=0&u=1---',
-    'gpp': 'DBAA',
-    'gpp_sid': '-1',
-    'axids': 'gam=y-OwmU7hlE2uJ8TCwmFLn76DgH4NZ6wBgr~A&dv360=eS13Y2YyRjF0RTJ1RWVaRGxXTEguYzdKdUdzOEdUYnlZWX5B&ydsp=y-qL.Qpg1E2uK2eQT83KSc6c7u.mi_GBqy~A&tbla=y-M3wvcy9E2uLlb3LzYYF13ZP77LFokx.V~A',
-    'tbla_id': '290dbd19-1845-4973-a160-a510faeb227c-tuctda26b8e',
-    'trc_cookie_storage': 'taboola%2520global%253Auser-id%3D60aca256-e56f-4c88-a741-be55bdcdfbea-tuctda26b8e',
-    'cto_bundle': 'LXH_j19scjkwTlp2VlZTVDRnM25LR0ZSdG5paUd4WW11aGVvSWwlMkJaeXhMaUV1bUFVQXRmSSUyQnpTZ1FYWGNCWjMlMkZHJTJGRkJBY2ZDMTJOcTVLJTJGYjdDNFJodmxrSzRGU2pFaVV1RmJvNVFPcmhnZzFPOEQyQXZYWGJHa210ZE9MejAzWUI2SmglMkIzOTRLRnBtQ2xBRTk4Q1UwVmkzS2clM0QlM0Q',
-    '__gads': 'ID=1ddde46b9f0e9779:T=1722344975:RT=1722346047:S=ALNI_MbVMyumWo2wu4KAmTXv0op_11xeMg',
-    '__gpi': 'UID=00000eadc42a1223:T=1722346112:RT=1722346112:S=ALNI_MZG97VrbvgQhgVi94QXLZzw390YLg',
-    '__eoi': 'ID=d721f32c96871071:T=1722346112:RT=1722346112:S=AA-AfjbVvAGUmdkUmlI5rywQeCTg',
-}
-
-headers = {
+    payload = {}
+    headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     'accept-language': 'en-US,en;q=0.9,en-IN;q=0.8',
     'cache-control': 'max-age=0',
-    # 'cookie': 'A1=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; A3=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; A1S=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; cmp=t=1722344972&j=0&u=1---; gpp=DBAA; gpp_sid=-1; axids=gam=y-OwmU7hlE2uJ8TCwmFLn76DgH4NZ6wBgr~A&dv360=eS13Y2YyRjF0RTJ1RWVaRGxXTEguYzdKdUdzOEdUYnlZWX5B&ydsp=y-qL.Qpg1E2uK2eQT83KSc6c7u.mi_GBqy~A&tbla=y-M3wvcy9E2uLlb3LzYYF13ZP77LFokx.V~A; tbla_id=290dbd19-1845-4973-a160-a510faeb227c-tuctda26b8e; trc_cookie_storage=taboola%2520global%253Auser-id%3D60aca256-e56f-4c88-a741-be55bdcdfbea-tuctda26b8e; cto_bundle=LXH_j19scjkwTlp2VlZTVDRnM25LR0ZSdG5paUd4WW11aGVvSWwlMkJaeXhMaUV1bUFVQXRmSSUyQnpTZ1FYWGNCWjMlMkZHJTJGRkJBY2ZDMTJOcTVLJTJGYjdDNFJodmxrSzRGU2pFaVV1RmJvNVFPcmhnZzFPOEQyQXZYWGJHa210ZE9MejAzWUI2SmglMkIzOTRLRnBtQ2xBRTk4Q1UwVmkzS2clM0QlM0Q; __gads=ID=1ddde46b9f0e9779:T=1722344975:RT=1722346047:S=ALNI_MbVMyumWo2wu4KAmTXv0op_11xeMg; __gpi=UID=00000eadc42a1223:T=1722346112:RT=1722346112:S=ALNI_MZG97VrbvgQhgVi94QXLZzw390YLg; __eoi=ID=d721f32c96871071:T=1722346112:RT=1722346112:S=AA-AfjbVvAGUmdkUmlI5rywQeCTg',
+    'cookie': 'A1=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; A3=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; axids=gam=y-OwmU7hlE2uJ8TCwmFLn76DgH4NZ6wBgr~A&dv360=eS13Y2YyRjF0RTJ1RWVaRGxXTEguYzdKdUdzOEdUYnlZWX5B&ydsp=y-qL.Qpg1E2uK2eQT83KSc6c7u.mi_GBqy~A&tbla=y-M3wvcy9E2uLlb3LzYYF13ZP77LFokx.V~A; tbla_id=290dbd19-1845-4973-a160-a510faeb227c-tuctda26b8e; trc_cookie_storage=taboola%2520global%253Auser-id%3D60aca256-e56f-4c88-a741-be55bdcdfbea-tuctda26b8e; cto_bundle=sabhbV9scjkwTlp2VlZTVDRnM25LR0ZSdG5yZW40R2tsZnhHR0wyJTJGVEZ0Z0J3emc1MzJyJTJCaThCb2lkMjJBV252bFZham0lMkJGMktmQWR2RHdVQnRvUHNkTnplTVNNWWVEOHhjdXNYeEQ5bEF1WFp3cFdWTE4xd2c5eVJ2a0JMc2NXR0NmdFVqeFRTJTJGemhjWWZjTmZKTW5sdE93QSUzRCUzRA; A1S=d=AQABBAjmqGYCEFG10ABH4j-ASuZH3fpxPbwFEgEBAQE3qmayZlkWyyMA_eMAAA&S=AQAAAuddw77dBvBspiVjRC7RxFI; cmp=t=1722605030&j=0&u=1---; gpp=DBAA; gpp_sid=-1; __gads=ID=1ddde46b9f0e9779:T=1722344975:RT=1722605040:S=ALNI_MbVMyumWo2wu4KAmTXv0op_11xeMg; __gpi=UID=00000eb1b4284f40:T=1722605058:RT=1722605058:S=ALNI_MYPDULAc5rSQR2ExJIIOAeScU5uUQ; __eoi=ID=4af437c0feb56931:T=1722605058:RT=1722605058:S=AA-AfjY6XO_Uy6uHgiTaSI9oj3q-',
     'priority': 'u=0, i',
     'sec-ch-ua': '"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
     'sec-ch-ua-mobile': '?0',
@@ -41,21 +36,12 @@ headers = {
     'sec-fetch-site': 'none',
     'sec-fetch-user': '?1',
     'upgrade-insecure-requests': '1',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
-}
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0'
+    }
 
-
-
-
-def convert_date_format(date_str):
-    date_obj = datetime.strptime(date_str, "%b %d %Y")
-    formatted_date = date_obj.strftime("%Y-%m-%d")
-    return formatted_date
-
-
-def engadgets_article_list(residential_proxies ,ca_cert_path,cookies,headers):
-    response = requests.get('https://www.engadget.com/', cookies=cookies, headers=headers ,proxies=residential_proxies , verify=ca_cert_path)
+    response = requests.get(url, data=payload, headers=headers ,proxies=residential_proxies , verify=ca_cert_path)
     print(response.status_code)
+
     if response.status_code == 200:
         article_links =[]
         soup = BeautifulSoup(response.content ,'lxml')
@@ -137,7 +123,7 @@ def engadgets_article_details(url):
 
 if __name__ == "__main__":
 
-    total_article_links = engadgets_article_list(residential_proxies ,ca_cert_path,cookies,headers)
+    total_article_links = engadgets_article_list()
 
     articles_data = []
     for url in total_article_links:        
@@ -146,7 +132,7 @@ if __name__ == "__main__":
             articles_data.append(article_details)
     
     # Save scraped data to a JSON file
-    with open("engadgets_articles.json", "w") as json_file:
+    with open("zzsample outputs/engadgets_articles.json", "w") as json_file:
         json.dump(articles_data, json_file, indent=4)
 
     print("Data fetched and stored in engadgets_articles.json")
