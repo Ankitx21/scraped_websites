@@ -155,7 +155,7 @@ if __name__ == "__main__":
             articles_data.append(article_details)
     
     # Save scraped data to a JSON file  scraped_websites\zzsample outputs
-    with open("scraped_websites/zzsample outputs/fortune_articles.json", "w") as json_file:
+    with open("zzsample outputs/fortune_articles.json", "w") as json_file:
         json.dump(articles_data, json_file, indent=4)
 
     print("Data fetched and stored in fortune_articles.json")

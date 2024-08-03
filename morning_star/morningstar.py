@@ -166,7 +166,6 @@ if __name__ == "__main__":
             articles_data.append(article_details)
     
     # Save scraped data to a JSON file
-    articles_data.append(article_details)
     with open("zzsample outputs/morningstar_articles.json", "w") as json_file:
         json.dump(articles_data, json_file, indent=4)
 
