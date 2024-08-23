@@ -132,7 +132,6 @@ def theblock_article_details(url):
 
             # Extract the body content
             paragraph_texts = []
-            # Phrases to identify the paragraphs to exclude
             exclude_phrases = [
                 'Disclaimer: The Block is an independent media outlet that delivers news, research, and data.',
                 '© 2024 The Block. All Rights Reserved.'
