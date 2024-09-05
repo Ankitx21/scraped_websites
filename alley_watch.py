@@ -10,7 +10,7 @@ headers = {
     'Cookie': 'PHPSESSID=96gv4pbjtk4lnhe90ososkhdsd'
 }
 
-def convert_date(date_str):
+def alley_watch_convert_date(date_str):
     """Convert a date string to 'yyyy-mm-dd' format."""
     try:
         # Parse the date string using datetime
