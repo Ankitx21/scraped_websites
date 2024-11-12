@@ -21,7 +21,7 @@ headers = {
 website_url = 'https://thehill.com/'
 
 # Function to get article URLs from the main page
-def get_article_urls():
+def the_hill_article_urls():
     try:
         response = requests.get(website_url, headers=headers, proxies=proxies, verify=False)
         if response.status_code == 200:
@@ -142,7 +142,7 @@ def the_hill_author_details(author_url):
 def the_hill_save():
     articles_data = []
     
-    article_urls = get_article_urls()
+    article_urls = the_hill_article_urls()
     if article_urls:
         for url in article_urls:
             # Ensure full URL format
