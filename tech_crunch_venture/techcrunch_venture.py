@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import urllib3
+import re
 
 # Suppress InsecureRequestWarning from urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -24,8 +25,6 @@ def techcrunch_venture_article_urls():
     unique_links = [article['href'] for article in articles if article.get('href')]
     return unique_links
 
-from datetime import datetime
-import re
 
 # Function to convert published date to 'dd-mm-yyyy' format
 def techcrunch_venture_convert_published_date(date_str):
