@@ -24,12 +24,24 @@ def techcrunch_venture_article_urls():
     unique_links = [article['href'] for article in articles if article.get('href')]
     return unique_links
 
-# Function to convert published date to 'dd-mm-yy' format
+from datetime import datetime
+import re
+
+# Function to convert published date to 'dd-mm-yyyy' format
 def techcrunch_venture_convert_published_date(date_str):
     try:
-        return datetime.strptime(date_str, '%I:%M %p %Z · %B %d, %Y').strftime('%d-%m-%y')
+        # Remove the timezone part (e.g., "PST") using regex to capture only the date and time
+        date_without_timezone = re.sub(r'\s\w{3}\s·\s', ' · ', date_str)
+        
+        # Parse the remaining part of the date string, e.g., "6:00 PM · November 13, 2024"
+        date_obj = datetime.strptime(date_without_timezone, '%I:%M %p · %B %d, %Y')
+        
+        # Return the date in 'dd-mm-yyyy' format
+        return date_obj.strftime('%d-%m-%Y')
     except ValueError:
         return None
+
+
 
 # Function to scrape article details
 def techcrunch_venture_article_details(article_url):
@@ -43,8 +55,8 @@ def techcrunch_venture_article_details(article_url):
     published = soup.find('div', class_='wp-block-post-date').get_text(strip=True) if soup.find('div', class_='wp-block-post-date') else None
     published_date = None
     if published:
-        date_text = soup.find('time').get_text(strip=True)
-        published_date = techcrunch_venture_convert_published_date(date_text)
+        # Use the full `published` date string for conversion
+        published_date = techcrunch_venture_convert_published_date(published)
     
     # Extract author link
     author_tag = soup.find('a', class_='wp-block-tc23-author-card-name__link') or soup.find('a', class_='post-authors-list__author')
